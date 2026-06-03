@@ -191,8 +191,13 @@ write_buffers = 0
 
 **終端機指令：**
 ```bash
-# Write-back（預設）
+# Write-back（預設）跑之前cache.py 的replacement_policy 改回LRURP
+
 ./build/X86/gem5.opt --outdir=./m5out_writeback configs/example/se.py -c ./multiply --cpu-type=TimingSimpleCPU --caches --l2cache --l3cache --l1i_size=32kB --l1d_size=32kB --l2_size=128kB --l3_size=1MB --l3_assoc=4 --mem-type=NVMainMemory --nvmain-config=../NVmain/Config/PCM_ISSCC_2012_4GB.config
+gem5 Simulator System.  http://gem5.org
+
+抓數據：  grep "sim_seconds\|num_writes::total" ~/gem5/m5out_writeback/stats.txt                                                
+
 
 # Write-through（先改 write_buffers=0）
 sed -i 's/write_buffers = 8/write_buffers = 0/' configs/common/Caches.py

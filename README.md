@@ -142,6 +142,12 @@ replacement_policy = Param.BaseReplacementPolicy(LFURP(), "Replacement policy")
 
 **終端機指令：**
 ```bash
+# LFU
+上面的replacement_policy = LRURP()
+改成replacement_policy = LFURP()
+執行:
+./build/X86/gem5.opt --outdir=./m5out_lfu configs/example/se.py -c ./quicksort --cpu-type=TimingSimpleCPU --caches --l2cache --l3cache --l1i_size=32kB --l1d_size=32kB --l2_size=128kB --l3_size=1MB --l3_assoc=16384 --mem-type=NVMainMemory --nvmain-config=../NVmain/Config/PCM_ISSCC_2012_4GB.config
+
 # 步驟 1：切換為 LFURP
 sed -i 's/LRURP()/LFURP()/' configs/common/Caches.py
 

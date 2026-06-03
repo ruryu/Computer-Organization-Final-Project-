@@ -130,6 +130,11 @@ cd ~/gem5
 ```python
 # LRU（baseline）
 replacement_policy = Param.BaseReplacementPolicy(LRURP(), "Replacement policy")
+整行改成:
+replacement_policy = LRURP()
+執行:
+./build/X86/gem5.opt --outdir=./m5out_lru configs/example/se.py -c ./quicksort --cpu-type=TimingSimpleCPU --caches --l2cache --l3cache --l1i_size=32kB --l1d_size=32kB --l2_size=128kB --l3_size=1MB --l3_assoc=16384 --mem-type=NVMainMemory --nvmain-config=../NVmain/Config/PCM_ISSCC_2012_4GB.config
+再看stats.txt
 
 # LFU（frequency-based）
 replacement_policy = Param.BaseReplacementPolicy(LFURP(), "Replacement policy")

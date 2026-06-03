@@ -83,20 +83,10 @@ cd ~/gem5
 **終端機指令：**
 ```bash
 # 2-way
-./build/X86/gem5.opt configs/example/se.py -c ./quicksort \
-  --cpu-type=TimingSimpleCPU --caches --l2cache --l3cache \
-  --l1i_size=32kB --l1d_size=32kB --l2_size=128kB --l3_size=1MB \
-  --l3_assoc=2 \
-  --mem-type=NVMainMemory \
-  --nvmain-config=../NVmain/Config/PCM_ISSCC_2012_4GB.config
+./build/X86/gem5.opt --outdir=./m5out_2way configs/example/se.py -c ./quicksort --cpu-type=TimingSimpleCPU --caches --l2cache --l3cache --l1i_size=32kB --l1d_size=32kB --l2_size=128kB --l3_size=1MB --l3_assoc=2 --mem-type=NVMainMemory --nvmain-config=../NVmain/Config/PCM_ISSCC_2012_4GB.config
 
 # Fully-associative（1MB / 64B = 16384 ways）
-./build/X86/gem5.opt configs/example/se.py -c ./quicksort \
-  --cpu-type=TimingSimpleCPU --caches --l2cache --l3cache \
-  --l1i_size=32kB --l1d_size=32kB --l2_size=128kB --l3_size=1MB \
-  --l3_assoc=16384 \
-  --mem-type=NVMainMemory \
-  --nvmain-config=../NVmain/Config/PCM_ISSCC_2012_4GB.config
+./build/X86/gem5.opt --outdir=./m5out_fullway configs/example/se.py -c ./quicksort --cpu-type=TimingSimpleCPU --caches --l2cache --l3cache --l1i_size=32kB --l1d_size=32kB --l2_size=128kB --l3_size=1MB --l3_assoc=16384 --mem-type=NVMainMemory --nvmain-config=../NVmain/Config/PCM_ISSCC_2012_4GB.config
 ```
 
 **實驗數據：**
@@ -118,6 +108,19 @@ cd ~/gem5
   的跳躍式存取讓 LRU 判斷失準，反而踢掉快要被用到的 block                                             
                                                                                                       
   簡單說：LRU 在極高關聯度下對 quicksort 的存取模式效果較差，這個結果是合理的，可以直接拿來報告。 
+
+⏺ 對，理論上 fully-associative 應該更低，但你的結果跟 CLAUDE.md 記錄的一樣，fullway 反而更高（0.54 >                    
+  0.46），這是合理的反常現象。                                                                                          
+                                                                                                                        
+  原因：
+                                                                                                                        
+  gem5 的 fully-associative = 把整個 1MB L3 變成 單一 set（16384-way），全部由 LRU 管理。                               
+                                                                                                                        
+  quicksort 的存取是跳躍式、非線性的，working set 很大，LRU 在 16384-way 的巨大 set 裡反而容易把「等一下還會用到的      
+  block」提早淘汰，製造更多 miss。                                                                                    
+                                                                                                                        
+  一句話總結：理論成立的前提是 replacement policy 夠聰明，但 LRU + quicksort 的跳躍存取在超大 set                       
+  下失效，所以實驗結果與理論相反。這個反差本身就是值得在報告裡解釋的重點。
 
 ---
 

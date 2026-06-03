@@ -171,6 +171,10 @@ sed -i 's/LFURP()/LRURP()/' configs/common/Caches.py
 | L3 miss rate | 0.4706 | 0.5500 |
 
 > LFU miss rate 較高，因為 quicksort 的存取模式不適合 frequency-based policy（歷史頻率無法反映近期局部性）。
+>
+> LRU (Baseline)：看的是「最近有沒有被存取」。Quicksort 在對子陣列進行局部掃描與資料交換時，剛載入的資料能被 LRU 留在快取中，勉強維持住局部性。
+
+LFU (Frequency-based)：看的是「歷史存取總次數」。Quicksort 早期階段密集掃描、交換過的大量舊資料，會累積出極高的存取次數，導致這些老資料死死卡在 L3 Cache 裡。當演算法執行到後期、需要處理全新區段的資料時，新資料因為存取次數低，一載入就會被 LFU 優先淘汰踢出，進而造成嚴重的快取污染（Cache Pollution），導致 LFU 的 miss rate 大幅攀升。
 
 ---
 
